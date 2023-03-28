@@ -1,16 +1,29 @@
+
+SOURCE_SCRIPTS_DIR = "scripts/"
+DEST_SCRIPTS_DIR = "/tmp/scripts/"
+
 Vagrant.configure("2") do |config|
 
   config.vm.define "admin" do |admin|
-    admin.vm.box = "generic/ubuntu2204"
+    admin.vm.box = "generic/ubuntu2004"
+    admin.ssh.forward_agent = true
+    admin.ssh.username = 'vagrant'
+    admin.ssh.password = 'vagrant'
+    admin.vm.synced_folder SOURCE_SCRIPTS_DIR, DEST_SCRIPTS_DIR
     admin.vm.hostname = "admin"
-    admin.vm.provider "virtualbox" do |vb|
+    admin.vm.provider "virtualbox" do |vb, override|
       vb.name = "admin"
       vb.memory = "2048"
       vb.cpus = 2
       vb.customize ['modifyvm', :id, '--macaddress1', '0800277D1CFA']
+      override.vm.synced_folder SOURCE_SCRIPTS_DIR, DEST_SCRIPTS_DIR
     end
+
     # Assign NATNETWORK named eksa-net
-    admin.vm.network "private_network", virtualbox__intnet: "eksa-net"
+    admin.vm.network "private_network", ip: "192.168.56.4", netmask: "255.255.255.0", virtualbox__intnet: "eksa-net"
+
+    # Execute configure-admin.sh script
+    admin.vm.provision :shell, path: SOURCE_SCRIPTS_DIR + "/configure-admin.sh", args: []
   end
 
   config.vm.define "machine1" do |machine1|
