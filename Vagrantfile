@@ -20,7 +20,7 @@ Vagrant.configure("2") do |config|
     end
 
     # Assign NATNETWORK named eksa-net
-    admin.vm.network "private_network", ip: "192.168.56.4", netmask: "255.255.255.0", virtualbox__intnet: "eksa-net"
+    admin.vm.network "private_network", ip: "192.168.10.4", netmask: "255.255.255.0", virtualbox__intnet: "eksa-net"
 
     # Execute configure-admin.sh script
     admin.vm.provision :shell, path: SOURCE_SCRIPTS_DIR + "/configure-admin.sh", args: []
@@ -33,7 +33,7 @@ Vagrant.configure("2") do |config|
       vb.name = "eksabmhp1-cp-n-1"
       vb.memory = "2048"
       vb.cpus = 2
-      vb.customize ['modifyvm', :id, '--macaddress1', '0800277D1CFB']
+      vb.customize ['modifyvm', :id, '--macaddress1', '080027995BB7']
       vb.customize ["modifyvm", :id, "--nicbootprio1", "3"]
     end
     # Assign NATNETWORK named eksa-net
@@ -49,7 +49,7 @@ Vagrant.configure("2") do |config|
       vb.name = "eksabmhp1-dp-n-1"
       vb.memory = "2048"
       vb.cpus = 2
-      vb.customize ['modifyvm', :id, '--macaddress1', '0800277D1CFC']
+      vb.customize ['modifyvm', :id, '--macaddress1', '080027ACC977']
       vb.customize ["modifyvm", :id, "--nicbootprio1", "3"]
     end
     # Assign NATNETWORK named eksa-net
