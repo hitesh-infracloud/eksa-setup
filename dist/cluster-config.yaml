@@ -1,0 +1,217 @@
+apiVersion: anywhere.eks.amazonaws.com/v1alpha1
+kind: Cluster
+metadata:
+  name: mgmt
+spec:
+  kubernetesVersion: "1.22"
+  clusterNetwork:
+    cniConfig:
+      cilium:
+        policyEnforcementMode: default
+    pods:
+      cidrBlocks:
+        - 192.168.0.0/16
+    services:
+      cidrBlocks:
+        - 10.96.0.0/12
+  controlPlaneConfiguration:
+    count: 1
+    endpoint:
+      host: 192.168.10.184
+    machineGroupRef:
+      kind: TinkerbellMachineConfig
+      name: mc1
+  workerNodeGroupConfigurations:
+    - count: 1
+      name: md-0
+      machineGroupRef:
+        kind: TinkerbellMachineConfig
+        name: mc2
+  managementCluster:
+    name: mgmt
+  datacenterRef:
+    kind: TinkerbellDatacenterConfig
+    name: mgmt
+---
+apiVersion: anywhere.eks.amazonaws.com/v1alpha1
+kind: TinkerbellDatacenterConfig
+metadata:
+  name: mgmt
+spec:
+  tinkerbellIP: 192.168.10.64
+---
+apiVersion: anywhere.eks.amazonaws.com/v1alpha1
+kind: TinkerbellTemplateConfig
+metadata:
+  name: tmpl1
+spec:
+  template:
+    global_timeout: 6000
+    id: ""
+    name: tmpl1
+    tasks:
+      - name: tmpl1
+        actions:
+          - environment:
+              COMPRESSED: "true"
+              DEST_DISK: /dev/sda
+              IMG_URL: https://anywhere-assets.eks.amazonaws.com/releases/bundles/36/artifacts/raw/1-22/bottlerocket-v1.22.17-eks-d-1-22-24-eks-a-36-amd64.img.gz
+            name: stream-image
+            image: public.ecr.aws/eks-anywhere/tinkerbell/hub/image2disk:6c0f0d437bde2c836d90b000312c8b25fa1b65e1-eks-a-36
+            timeout: 600
+          - environment:
+              BOOTCONFIG_CONTENTS: kernel {}
+              DEST_DISK: /dev/sda12
+              DEST_PATH: /bootconfig.data
+              DIRMODE: "0700"
+              FS_TYPE: ext4
+              GID: "0"
+              MODE: "0644"
+              UID: "0"
+            name: write-bootconfig
+            image: public.ecr.aws/eks-anywhere/tinkerbell/hub/writefile:6c0f0d437bde2c836d90b000312c8b25fa1b65e1-eks-a-36
+            timeout: 90
+            pid: host
+          - environment:
+              DEST_DISK: /dev/sda12
+              DEST_PATH: /user-data.toml
+              DIRMODE: "0700"
+              FS_TYPE: ext4
+              GID: "0"
+              HEGEL_URLS: http://192.168.10.50:50061,http://192.168.10.64:50061
+              MODE: "0644"
+              UID: "0"
+            name: write-user-data
+            image: public.ecr.aws/eks-anywhere/tinkerbell/hub/writefile:6c0f0d437bde2c836d90b000312c8b25fa1b65e1-eks-a-36
+            timeout: 90
+            pid: host
+          - environment:
+              DEST_DISK: /dev/sda12
+              DEST_PATH: /net.toml
+              DIRMODE: "0755"
+              FS_TYPE: ext4
+              GID: "0"
+              IFNAME: enp0s3
+              MODE: "0644"
+              STATIC_BOTTLEROCKET: "true"
+              UID: "0"
+            name: write-netplan
+            image: public.ecr.aws/eks-anywhere/tinkerbell/hub/writefile:6c0f0d437bde2c836d90b000312c8b25fa1b65e1-eks-a-36
+            timeout: 90
+            pid: host
+          - name: reboot-image
+            image: public.ecr.aws/eks-anywhere/tinkerbell/hub/reboot:6c0f0d437bde2c836d90b000312c8b25fa1b65e1-eks-a-36
+            timeout: 90
+            pid: host
+            volumes:
+              - /worker:/worker
+        volumes:
+          - /dev:/dev
+          - /dev/console:/dev/console
+          - /lib/firmware:/lib/firmware:ro
+        worker: "{{.device_1}}"
+    version: "0.1"
+---
+apiVersion: anywhere.eks.amazonaws.com/v1alpha1
+kind: TinkerbellTemplateConfig
+metadata:
+  name: tmpl2
+spec:
+  template:
+    global_timeout: 6000
+    id: ""
+    name: tmpl2
+    tasks:
+      - name: tmpl2
+        actions:
+          - environment:
+              COMPRESSED: "true"
+              DEST_DISK: /dev/sda
+              IMG_URL: https://anywhere-assets.eks.amazonaws.com/releases/bundles/36/artifacts/raw/1-22/bottlerocket-v1.22.17-eks-d-1-22-24-eks-a-36-amd64.img.gz
+            name: stream-image
+            image: public.ecr.aws/eks-anywhere/tinkerbell/hub/image2disk:6c0f0d437bde2c836d90b000312c8b25fa1b65e1-eks-a-36
+            timeout: 600
+          - environment:
+              BOOTCONFIG_CONTENTS: kernel {}
+              DEST_DISK: /dev/sda12
+              DEST_PATH: /bootconfig.data
+              DIRMODE: "0700"
+              FS_TYPE: ext4
+              GID: "0"
+              MODE: "0644"
+              UID: "0"
+            name: write-bootconfig
+            image: public.ecr.aws/eks-anywhere/tinkerbell/hub/writefile:6c0f0d437bde2c836d90b000312c8b25fa1b65e1-eks-a-36
+            timeout: 90
+            pid: host
+          - environment:
+              DEST_DISK: /dev/sda12
+              DEST_PATH: /user-data.toml
+              DIRMODE: "0700"
+              FS_TYPE: ext4
+              GID: "0"
+              HEGEL_URLS: http://192.168.10.50:50061,http://192.168.10.64:50061
+              MODE: "0644"
+              UID: "0"
+            name: write-user-data
+            image: public.ecr.aws/eks-anywhere/tinkerbell/hub/writefile:6c0f0d437bde2c836d90b000312c8b25fa1b65e1-eks-a-36
+            timeout: 90
+            pid: host
+          - environment:
+              DEST_DISK: /dev/sda12
+              DEST_PATH: /net.toml
+              DIRMODE: "0755"
+              FS_TYPE: ext4
+              GID: "0"
+              IFNAME: enp0s3
+              MODE: "0644"
+              STATIC_BOTTLEROCKET: "true"
+              UID: "0"
+            name: write-netplan
+            image: public.ecr.aws/eks-anywhere/tinkerbell/hub/writefile:6c0f0d437bde2c836d90b000312c8b25fa1b65e1-eks-a-36
+            timeout: 90
+            pid: host
+          - name: reboot-image
+            image: public.ecr.aws/eks-anywhere/tinkerbell/hub/reboot:6c0f0d437bde2c836d90b000312c8b25fa1b65e1-eks-a-36
+            timeout: 90
+            pid: host
+            volumes:
+              - /worker:/worker
+        volumes:
+          - /dev:/dev
+          - /dev/console:/dev/console
+          - /lib/firmware:/lib/firmware:ro
+        worker: "{{.device_1}}"
+    version: "0.1"
+---
+apiVersion: anywhere.eks.amazonaws.com/v1alpha1
+kind: TinkerbellMachineConfig
+metadata:
+  name: mc1
+spec:
+  hardwareSelector:
+    type: cp
+  osFamily: bottlerocket
+  templateRef:
+    kind: TinkerbellTemplateConfig
+    name: tmpl1
+  users:
+    - name: ec2-user
+      sshAuthorizedKeys:
+        - <public RSA key generated earlier in prerequisite section>
+---
+apiVersion: anywhere.eks.amazonaws.com/v1alpha1
+kind: TinkerbellMachineConfig
+metadata:
+  name: mc2
+spec:
+  hardwareSelector:
+    type: dp
+  osFamily: bottlerocket
+  templateRef:
+    kind: TinkerbellTemplateConfig
+    name: tmpl2
+  users:
+    - name: ec2-user
+      sshAuthorizedKeys:
+        - <public RSA key generated earlier in prerequisite section>
