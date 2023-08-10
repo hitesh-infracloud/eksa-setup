@@ -1,1 +1,9 @@
+# Directories
+
 .vagrant
+.terraform
+
+# Extensions
+*.hcl
+*.tfstate
+*.backup
