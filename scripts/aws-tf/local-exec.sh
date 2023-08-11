@@ -6,7 +6,7 @@ timeout=$3
 start_time=$(date +%s)
 
 while true; do
-  if ssh -i ~/.aws/key-pairs/eksa-admin.pem -o StrictHostKeyChecking=no ec2-user@$instance_ip "test -e $file_path"; then
+  if ssh -i ~/.aws/key-pairs/eksa-admin.pem -o StrictHostKeyChecking=no ubuntu@$instance_ip "test -e $file_path"; then
     echo "File exists: $file_path"
     break
   fi
@@ -23,5 +23,5 @@ while true; do
 done
 
 # Copy files using scp
-scp -i ~/.aws/key-pairs/eksa-admin.pem -o StrictHostKeyChecking=no -r ../vm-scripts/ ec2-user@$instance_ip:/home/ec2-user/
+scp -i ~/.aws/key-pairs/eksa-admin.pem -o StrictHostKeyChecking=no -r ../vm-scripts/ ubuntu@$instance_ip:/home/ubuntu/
 echo "Files copied and connection successful"
