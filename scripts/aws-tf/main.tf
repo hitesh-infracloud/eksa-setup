@@ -35,7 +35,7 @@ resource "aws_security_group" "egress-all" {
 }
 
 resource "aws_instance" "Demo" {
-  ami           = "ami-0f5ee92e2d63afc18"
+  ami           = "ami-08e5424edfe926b43"
   instance_type = "t2.micro"
   key_name = "eksa-admin"
   security_groups= ["allow-ssh", "egress-all"]
@@ -63,7 +63,11 @@ resource "null_resource" "copy_files" {
 
       inline = [
       "chmod +x /home/ubuntu/vm-scripts/*.sh",
-      "sudo bash /home/ubuntu/vm-scripts/configure-admin.sh > /home/ubuntu/vm-scripts/automation.log 2>&1",
+      "mkdir /home/ubuntu/vm-scripts/logs",
+      "sudo bash /home/ubuntu/vm-scripts/install-pre-requisites.sh > /home/ubuntu/vm-scripts/logs/install-pre-requisites.log 2>&1",
+      "sudo bash /home/ubuntu/vm-scripts/create-network.sh > /home/ubuntu/vm-scripts/logs/create-network.log 2>&1",
+      "sudo bash /home/ubuntu/vm-scripts/launch-admin.sh > /home/ubuntu/vm-scripts/logs/launch-admin.log 2>&1",
+      "sudo bash /home/ubuntu/vm-scripts/launch-vms.sh > /home/ubuntu/vm-scripts/logs/launch-vms.log 2>&1",
     ]
   }
 

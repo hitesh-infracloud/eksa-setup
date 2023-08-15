@@ -1,4 +1,6 @@
 
+# This is an example Vagrant scripts to create CP and DP VMs/Nodes on local w/o connecting to cloud
+
 SOURCE_SCRIPTS_DIR = "scripts/"
 DEST_SCRIPTS_DIR = "/tmp/scripts/"
 

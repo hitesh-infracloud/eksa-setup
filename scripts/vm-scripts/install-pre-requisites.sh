@@ -50,6 +50,7 @@ install-vbox-vagrant() {
     apt-get install -y vagrant 
     vagrant plugin install vagrant-disksize
     vagrant plugin install vagrant-persistent-storage
+    echo "successfully installed virtualbox and vagrant"
 }
 
 
